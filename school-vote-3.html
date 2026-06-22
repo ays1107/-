@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>대구상원고등학교 교명변경 전자투표</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;600&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #1B2A4A; --navy-mid: #243660; --gold: #C9A84C; --gold-light: #E8C97A;
+    --ivory: #F7F4EE; --white: #FFFFFF; --gray-light: #EEE9DF; --gray-mid: #9A9080;
+    --text-main: #1B2A4A; --text-sub: #5A5248;
+    --green: #2E7D52; --red: #B33A3A; --green-bg: #EAF4EE; --red-bg: #FAEEEE;
+    --shadow: 0 4px 24px rgba(27,42,74,0.10); --shadow-lg: 0 8px 40px rgba(27,42,74,0.16);
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Noto Sans KR', sans-serif; background: var(--ivory); color: var(--text-main); min-height: 100vh; }
+
+  header { background: var(--navy); color: var(--white); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.18); }
+  .header-inner { max-width: 860px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .header-logo { display: flex; align-items: center; gap: 10px; }
+  .header-emblem { width: 36px; height: 36px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink:0; }
+  .header-title { font-family: 'Noto Serif KR', serif; font-size: 0.95rem; font-weight: 700; color: var(--white); line-height: 1.35; }
+  .header-title small { display: block; font-size: 0.68rem; font-weight: 400; color: rgba(255,255,255,0.6); font-family: 'Noto Sans KR', sans-serif; margin-top:2px; }
+  .header-badge { background: var(--gold); color: var(--navy); font-size: 0.72rem; font-weight: 700; padding: 5px 13px; border-radius: 20px; white-space: nowrap; flex-shrink:0; }
+
+  main { max-width: 860px; margin: 0 auto; padding: 24px 18px 60px; }
+
+  .notice-banner { background: var(--navy); color: var(--white); border-radius: 16px; padding: 32px 36px; margin-bottom: 20px; position: relative; overflow: hidden; }
+  .notice-banner::before { content:''; position:absolute; right:-30px; top:-40px; width:180px; height:180px; border-radius:50%; background:rgba(201,168,76,0.12); }
+  .notice-eyebrow { font-size:0.7rem; font-weight:600; letter-spacing:0.14em; color:var(--gold-light); text-transform:uppercase; margin-bottom:8px; }
+  .notice-main-title { font-family:'Noto Serif KR',serif; font-size:1.4rem; font-weight:700; line-height:1.45; margin-bottom:10px; }
+  .notice-sub { font-size:0.82rem; color:rgba(255,255,255,0.72); line-height:1.8; }
+  .notice-meta { margin-top:20px; display:flex; gap:20px; flex-wrap:wrap; }
+  .meta-item { display:flex; flex-direction:column; gap:3px; }
+  .meta-label { font-size:0.67rem; color:var(--gold-light); letter-spacing:0.08em; font-weight:600; }
+  .meta-value { font-size:0.83rem; color:rgba(255,255,255,0.9); font-weight:500; }
+
+  .tabs { display:flex; background:var(--white); border-radius:14px 14px 0 0; overflow:hidden; box-shadow:var(--shadow); }
+  .tab-btn { flex:1; padding:14px 8px; border:none; background:transparent; font-family:'Noto Sans KR',sans-serif; font-size:0.85rem; font-weight:600; color:var(--gray-mid); cursor:pointer; border-bottom:3px solid transparent; transition:all 0.2s; }
+  .tab-btn.active { color:var(--navy); border-bottom-color:var(--gold); background:var(--ivory); }
+  .tab-btn:hover:not(.active) { background:var(--gray-light); }
+
+  .card { background:var(--white); border-radius:0 0 16px 16px; padding:28px; margin-bottom:18px; box-shadow:var(--shadow); }
+  .card-standalone { background:var(--white); border-radius:16px; padding:28px; margin-bottom:18px; box-shadow:var(--shadow); }
+  .card-title { font-family:'Noto Serif KR',serif; font-size:1rem; font-weight:700; color:var(--navy); margin-bottom:18px; padding-bottom:12px; border-bottom:2px solid var(--gray-light); display:flex; align-items:center; gap:8px; }
+  .card-title .icon { width:26px; height:26px; background:var(--navy); border-radius:7px; display:inline-flex; align-items:center; justify-content:center; font-size:0.8rem; flex-shrink:0; }
+
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+
+  /* 안내 탭 */
+  .info-section { margin-bottom:18px; }
+  .info-section-title { font-size:0.88rem; font-weight:700; color:var(--white); background:var(--navy); padding:8px 14px; border-radius:8px; margin-bottom:10px; }
+  .info-list { list-style:none; }
+  .info-list li { font-size:0.82rem; line-height:1.8; color:var(--text-sub); padding:6px 0 6px 14px; border-bottom:1px solid var(--gray-light); position:relative; }
+  .info-list li::before { content:'•'; position:absolute; left:0; color:var(--gold); font-weight:700; }
+  .info-list li:last-child { border-bottom:none; }
+
+  /* 폼 */
+  .form-group { margin-bottom:16px; }
+  .form-label { display:block; font-size:0.82rem; font-weight:600; color:var(--text-sub); margin-bottom:6px; }
+  .form-input { width:100%; padding:11px 14px; border:1.5px solid var(--gray-light); border-radius:10px; font-family:'Noto Sans KR',sans-serif; font-size:0.92rem; color:var(--text-main); background:var(--ivory); outline:none; transition:border-color 0.2s; }
+  .form-input:focus { border-color:var(--gold); background:var(--white); }
+
+
+  .vote-options { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:18px 0; }
+  .vote-option { border:2.5px solid var(--gray-light); border-radius:14px; padding:22px 14px; text-align:center; cursor:pointer; transition:all 0.22s; background:var(--white); position:relative; }
+  .vote-option:hover { border-color:var(--navy); transform:translateY(-2px); box-shadow:var(--shadow); }
+  .vote-option.selected-yes { border-color:var(--green); background:var(--green-bg); }
+  .vote-option.selected-no  { border-color:var(--red);   background:var(--red-bg); }
+  .vote-option .opt-icon { font-size:2rem; margin-bottom:8px; display:block; }
+  .vote-option .opt-label { font-family:'Noto Serif KR',serif; font-size:1.1rem; font-weight:700; }
+  .vote-option .opt-desc { font-size:0.74rem; color:var(--gray-mid); margin-top:4px; line-height:1.4; }
+  .vote-option.selected-yes .opt-label { color:var(--green); }
+  .vote-option.selected-no  .opt-label { color:var(--red); }
+  .check-mark { position:absolute; top:10px; right:12px; font-size:1rem; display:none; }
+  .vote-option.selected-yes .check-mark, .vote-option.selected-no .check-mark { display:block; }
+
+  .anonymous-notice { display:flex; align-items:flex-start; gap:8px; background:var(--gray-light); border-radius:10px; padding:10px 14px; font-size:0.78rem; color:var(--text-sub); margin-bottom:18px; line-height:1.6; }
+
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:12px 22px; border-radius:10px; font-family:'Noto Sans KR',sans-serif; font-size:0.88rem; font-weight:600; cursor:pointer; border:none; transition:all 0.2s; }
+  .btn-primary { background:var(--navy); color:var(--white); }
+  .btn-primary:hover { background:var(--navy-mid); transform:translateY(-1px); }
+  .btn-outline { background:transparent; color:var(--navy); border:1.5px solid var(--navy); }
+  .btn-outline:hover { background:var(--navy); color:var(--white); }
+  .btn-gold { background:var(--gold); color:var(--navy); }
+  .btn-gold:hover { background:var(--gold-light); }
+  .btn-sm { padding:7px 14px; font-size:0.78rem; }
+  .btn-full { width:100%; }
+  .btn:disabled { opacity:0.4; cursor:not-allowed; transform:none !important; }
+
+  /* 결과 */
+  .result-summary { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:18px; }
+  .result-stat { background:var(--ivory); border-radius:12px; padding:14px; text-align:center; }
+  .result-stat .stat-num { font-family:'Noto Serif KR',serif; font-size:1.6rem; font-weight:700; color:var(--navy); line-height:1; margin-bottom:4px; }
+  .result-stat .stat-num.yes { color:var(--green); }
+  .result-stat .stat-num.no  { color:var(--red); }
+  .result-stat .stat-label { font-size:0.72rem; color:var(--gray-mid); font-weight:500; }
+  .bar-wrap { margin-bottom:8px; }
+  .bar-label { display:flex; justify-content:space-between; font-size:0.8rem; font-weight:600; margin-bottom:5px; }
+  .bar-track { height:11px; background:var(--gray-light); border-radius:99px; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:99px; transition:width 0.8s cubic-bezier(.4,0,.2,1); }
+  .bar-fill.yes { background:var(--green); }
+  .bar-fill.no  { background:var(--red); }
+  .chart-wrap { height:200px; margin-top:18px; }
+
+  /* 상태 배너 */
+  .closed-banner { background:var(--red-bg); border:1.5px solid var(--red); border-radius:12px; padding:12px 16px; display:none; align-items:center; gap:10px; font-size:0.84rem; color:var(--red); font-weight:600; margin-bottom:16px; }
+  .countdown { background:var(--navy); color:var(--white); border-radius:12px; padding:12px 16px; display:none; align-items:center; gap:10px; font-size:0.84rem; margin-bottom:16px; }
+  .countdown-val { font-family:'Noto Serif KR',serif; font-size:1rem; font-weight:700; color:var(--gold-light); }
+
+  /* 관리자 */
+  .admin-toggle-wrap { text-align:right; margin-bottom:10px; }
+  .admin-section { display:none; }
+  .admin-section.visible { display:block; }
+
+  /* 확인증 오버레이 */
+  .cert-overlay { display:none; position:fixed; inset:0; background:rgba(27,42,74,0.65); z-index:300; align-items:center; justify-content:center; padding:20px; }
+  .cert-overlay.show { display:flex; }
+
+  /* 확인증 본문 — 인쇄 시 이 영역만 */
+  .cert-box {
+    background:var(--white);
+    border-radius:20px;
+    max-width:440px;
+    width:100%;
+    box-shadow:var(--shadow-lg);
+    overflow:hidden;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  .cert-inner { padding:36px 36px 28px; text-align:center; }
+  .cert-title-kr { font-family:'Noto Serif KR',serif; font-size:2rem; font-weight:700; color:var(--navy); letter-spacing:0.04em; margin-bottom:4px; }
+  .cert-title-en { font-size:0.72rem; color:var(--gray-mid); letter-spacing:0.1em; margin-bottom:28px; }
+  .cert-table { width:100%; border-collapse:collapse; margin-bottom:24px; text-align:left; }
+  .cert-table tr td { padding:10px 6px; font-size:0.88rem; border-bottom:1px solid var(--gray-light); vertical-align:top; }
+  .cert-table tr:last-child td { border-bottom:none; }
+  .cert-table td:first-child { color:var(--gray-mid); font-weight:600; width:80px; white-space:nowrap; }
+  .cert-table td:last-child { color:var(--text-main); font-weight:500; padding-left:8px; line-height:1.6; }
+  .cert-body-text { font-size:0.88rem; line-height:2; color:var(--text-main); border-top:2px solid var(--navy); padding-top:20px; margin-bottom:24px; }
+  .cert-body-text strong { font-weight:700; }
+  .cert-footer-row { display:flex; align-items:center; justify-content:center; gap:16px; }
+  .cert-footer-date { font-size:0.85rem; color:var(--text-sub); margin-bottom:10px; }
+  .cert-issuer-name { font-family:'Noto Serif KR',serif; font-size:1rem; font-weight:700; color:var(--navy); }
+  .cert-seal-circle { width:56px; height:56px; border-radius:50%; border:2px solid var(--red); display:flex; align-items:center; justify-content:center; font-size:0.55rem; color:var(--red); font-weight:700; text-align:center; line-height:1.4; flex-shrink:0; }
+  .cert-actions { display:flex; gap:10px; justify-content:center; padding:16px 36px 24px; border-top:1px solid var(--gray-light); }
+
+  @media print {
+    body * { visibility:hidden; }
+    .cert-box, .cert-box * { visibility:visible; }
+    .cert-box { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); border-radius:0; box-shadow:none; max-width:100%; }
+    .cert-actions { display:none !important; }
+    header, .tabs, .admin-toggle-wrap, .countdown, .closed-banner { display:none !important; }
+  }
+
+  @media (max-width:600px) {
+    .notice-banner { padding:22px 18px; }
+    .notice-main-title { font-size:1.15rem; }
+    .card, .card-standalone { padding:20px 16px; }
+    .result-summary { gap:8px; }
+    .cert-inner { padding:24px 20px 18px; }
+    .cert-actions { padding:14px 20px 20px; }
+  }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+  .card, .card-standalone { animation:fadeIn 0.35s ease both; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-logo">
+      <div class="header-emblem">🏫</div>
+      <div class="header-title">
+        대구상원고등학교 교명변경 전자투표
+        <small>재경 교명변경추진위원회</small>
+      </div>
+    </div>
+    <div class="header-badge" id="statusBadge">진행 중</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- 공고 배너 -->
+  <div class="notice-banner">
+    <div class="notice-eyebrow">공식 전자투표 · Electronic Voting</div>
+    <div class="notice-main-title">「대구상원고등학교」에서<br>「대상고등학교」로 교명 변경 추진에 대한 여론조사</div>
+    <div class="notice-sub">동문간 단합과 모교의 발전을 위해 소중한 의견을 수렴합니다.<br>투표 결과는 교육청 승인 절차의 중요한 근거가 됩니다.</div>
+    <div class="notice-meta">
+      <div class="meta-item"><span class="meta-label">투표 시작</span><span class="meta-value">2026년 6월 20일 00:00</span></div>
+      <div class="meta-item"><span class="meta-label">투표 마감</span><span class="meta-value">2026년 6월 30일 24:00</span></div>
+      <div class="meta-item"><span class="meta-label">현재 참여자</span><span class="meta-value" id="displayTotal">0명</span></div>
+    </div>
+  </div>
+
+  <!-- 상태 배너 -->
+  <div class="countdown" id="countdownWrap">
+    ⏰ 투표 마감까지&nbsp;<span class="countdown-val" id="countdownVal">—</span>
+  </div>
+  <div class="closed-banner" id="closedBanner">
+    🔒 투표가 마감되었습니다. 참여해주신 모든 동문분께 감사드립니다.
+  </div>
+
+  <!-- 탭 -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('vote',this)">🗳️ 투표하기</button>
+    <button class="tab-btn" onclick="switchTab('info',this)">📋 투표 안내</button>
+    <button class="tab-btn" onclick="switchTab('result',this)">📊 실시간 결과</button>
+  </div>
+
+  <!-- ── 투표하기 탭 ── -->
+  <div class="card tab-content active" id="tab-vote">
+    <div class="card-title"><span class="icon">🗳️</span> 투표 참여</div>
+
+    <!-- 성명 -->
+    <div class="form-group">
+      <label class="form-label">성명 <span style="color:var(--red)">*</span></label>
+      <input type="text" class="form-input" id="voterName" placeholder="실명을 입력해주세요">
+    </div>
+
+    <!-- 기수 직접 입력 -->
+    <div class="form-group">
+      <label class="form-label">기수 <span style="color:var(--red)">*</span></label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="number" class="form-input" id="voterKisu" placeholder="숫자만 입력 (예: 35)" min="1" max="999" style="max-width:180px;">
+        <span style="font-size:0.92rem;color:var(--text-sub);font-weight:600;white-space:nowrap;">회 졸업</span>
+      </div>
+      <div style="font-size:0.75rem;color:var(--gray-mid);margin-top:5px;">1 ~ 999 사이의 숫자를 입력해주세요.</div>
+    </div>
+
+    <!-- 전화번호 -->
+    <div class="form-group">
+      <label class="form-label">연락처 (휴대폰 번호) <span style="color:var(--red)">*</span></label>
+      <input type="tel" class="form-input" id="voterPhone" placeholder="숫자만 입력 (예: 01012345678)" maxlength="11">
+      <div style="font-size:0.75rem;color:var(--gray-mid);margin-top:5px;">중복 투표 방지 및 본인 확인 목적으로만 사용됩니다.</div>
+    </div>
+
+    <div class="anonymous-notice">
+      🔒&nbsp; 투표 내용은 <strong>&nbsp;완전 익명&nbsp;</strong>으로 처리됩니다. 어떤 항목을 선택하셨는지는 공개되지 않습니다.
+    </div>
+
+    <!-- 찬반 선택 -->
+    <div class="vote-options">
+      <div class="vote-option" id="optYes" onclick="selectVote('yes')">
+        <span class="check-mark">✅</span>
+        <span class="opt-icon">👍</span>
+        <div class="opt-label">찬성</div>
+        <div class="opt-desc">교명 변경에<br>동의합니다</div>
+      </div>
+      <div class="vote-option" id="optNo" onclick="selectVote('no')">
+        <span class="check-mark">❌</span>
+        <span class="opt-icon">👎</span>
+        <div class="opt-label">반대</div>
+        <div class="opt-desc">교명 변경에<br>반대합니다</div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-full" id="submitBtn" onclick="submitVote()" disabled>
+      투표하기
+    </button>
+    <div style="font-size:0.74rem;color:var(--gray-mid);text-align:center;margin-top:10px;">
+      ※ 투표 완료 후 확인증이 발급됩니다. 캡처 또는 인쇄하여 보관하세요.
+    </div>
+  </div>
+
+  <!-- ── 투표 안내 탭 ── -->
+  <div class="card tab-content" id="tab-info">
+    <div class="info-section">
+      <div class="info-section-title">📌 교명변경 추진 배경 및 현재 상황</div>
+      <ul class="info-list">
+        <li>모교가 2003년 실업계(상업계)에서 일반계(인문계)로 전환되면서 교명 변경이 불가피하였고, 총동창회 이사회에서 이를 논의한 바 있습니다.</li>
+        <li>당시 '대상고등학교'로 변경하자는 의견이 다수였으나, 타 지역에 동일한 명칭의 학교가 존재한다는 의견(실제 확인 결과 존재하지 않음)이 제기되었습니다.</li>
+        <li>교지명인 '상원'에 '대구'를 더해 '대구상원'으로 변경할 경우, 약칭하면 '대상'이 되어 80년 전통을 이어갈 수 있겠다는 제안이 있었고, 그에 따라 '대구상원고등학교'로 개명하게 되었습니다.</li>
+        <li>그러나 현재 모교를 지칭하는 호칭은 재학생의 경우 대부분 '상원고'로 사용하고 있으며, 동문들은 20년이 지난 현재까지도 '대상', '대구상고', '대구상원고', '상원고' 등으로 각각 달리 사용하고 있어 불편과 혼선을 초래하고 있습니다.</li>
+        <li>'대구상원고'를 줄여 '상원고'로 표기할 경우, 부천지역에도 동일한 명칭의 학교가 존재하여 각종 학교 행사 홍보에 혼란이 발생하고 있으며, 교명의 고유성 또한 약화되고 있습니다.</li>
+      </ul>
+    </div>
+    <div class="info-section">
+      <div class="info-section-title">✅ 찬성 의견 요약</div>
+      <ul class="info-list">
+        <li>모교는 1923년 개교 이래 80년간 '대구상업고등학교'로 운영되었으며, 동문들은 졸업 이후에도 이를 약칭하여 '대상'이라 통칭해 왔습니다.</li>
+        <li>교명 변경이 이루어지지 않는 한 '대상'이라는 호칭과 명맥은 머지않아 사라질 수밖에 없으므로, 교명을 '대상고등학교'로 변경하여 대구상고의 후예임을 잊지 않게 할 필요가 있습니다.</li>
+        <li>'대상'으로의 교명 변경은 새로운 변경이라기보다 '대구상원'이라는 4글자를 2글자로 축약하는 것에 불과하다고 볼 수 있습니다.</li>
+        <li>일반계 고등학교의 교명은 대부분 2음절로 구성되어 있으나, '대구상원고등학교'는 4음절로 길어 대다수가 '상원고'로 줄여 부르고 있습니다.</li>
+      </ul>
+    </div>
+    <div class="info-section">
+      <div class="info-section-title">❌ 반대 의견 요약</div>
+      <ul class="info-list">
+        <li>2003년 모교의 일반계 전환 당시, 충분한 의견 수렴과 총동창회 정기총회의 의결을 거쳐 교명이 결정되었습니다.</li>
+        <li>'대구상원고등학교'로 약 23년간 약 8,000여 명의 졸업생을 배출하며 대구 지역 내에서 유망한 고등학교로 자리 잡아 가고 있습니다.</li>
+        <li>교명을 '대상고등학교'로 변경할 경우, '대구상원고등학교'로 졸업한 동문들의 모교에 대한 애정과 관심이 다소 약화될 수 있다는 우려도 제기됩니다.</li>
+        <li>교명을 변경하지 않더라도 후배들이 대구상고의 역사와 전통을 충분히 계승할 수 있을 것으로 보입니다.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── 실시간 결과 탭 ── -->
+  <div class="card tab-content" id="tab-result">
+    <div class="card-title"><span class="icon">📊</span> 실시간 투표 현황</div>
+    <div class="result-summary">
+      <div class="result-stat"><div class="stat-num yes" id="resYes">0</div><div class="stat-label">찬성</div></div>
+      <div class="result-stat"><div class="stat-num no"  id="resNo">0</div><div class="stat-label">반대</div></div>
+      <div class="result-stat"><div class="stat-num"     id="resTotal">0</div><div class="stat-label">총 참여</div></div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-label"><span style="color:var(--green)">찬성</span><span id="barYesPct" style="color:var(--green)">0%</span></div>
+      <div class="bar-track"><div class="bar-fill yes" id="barYes" style="width:0%"></div></div>
+    </div>
+    <div class="bar-wrap" style="margin-top:8px;">
+      <div class="bar-label"><span style="color:var(--red)">반대</span><span id="barNoPct" style="color:var(--red)">0%</span></div>
+      <div class="bar-track"><div class="bar-fill no" id="barNo" style="width:0%"></div></div>
+    </div>
+    <div class="chart-wrap"><canvas id="resultChart"></canvas></div>
+    <div style="font-size:0.72rem;color:var(--gray-mid);text-align:center;margin-top:10px;">5초마다 자동 새로고침</div>
+  </div>
+
+  <!-- 관리자 -->
+  <div class="admin-toggle-wrap">
+    <button class="btn btn-outline btn-sm" onclick="toggleAdminPw()">⚙️ 관리자</button>
+  </div>
+  <div class="card-standalone admin-section" id="adminPwCard">
+    <div class="card-title"><span class="icon">🔐</span> 관리자 인증</div>
+    <div style="display:flex;gap:10px;">
+      <input type="password" class="form-input" id="adminPwInput" placeholder="관리자 비밀번호 (기본: admin1234)">
+      <button class="btn btn-primary" onclick="checkAdminPw()">확인</button>
+    </div>
+  </div>
+  <div class="card-standalone admin-section" id="adminPanel">
+    <div class="card-title"><span class="icon">⚙️</span> 관리자 설정</div>
+    <div class="form-group">
+      <label class="form-label">새 비밀번호 변경</label>
+      <input type="password" class="form-input" id="newPwInput" placeholder="비워두면 변경 안 됨">
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-gold" onclick="saveSettings()">✅ 저장</button>
+      <button class="btn btn-outline" onclick="resetVotes()">🗑️ 투표 초기화</button>
+    </div>
+    <div style="margin-top:14px;font-size:0.78rem;color:var(--gray-mid);">
+      ※ 투표 기간: 2026년 6월 20일 00:00 ~ 2026년 6월 30일 24:00
+    </div>
+  </div>
+
+</main>
+
+<!-- ── 투표 완료 확인증 ── -->
+<div class="cert-overlay" id="certOverlay">
+  <div class="cert-box">
+    <div class="cert-inner">
+      <div class="cert-title-kr">투표확인증</div>
+      <div class="cert-title-en">Electronic Voting Confirmation Certificate</div>
+
+      <table class="cert-table">
+        <tr><td>성 명</td><td id="certName">—</td></tr>
+        <tr><td>기 수</td><td id="certKisu">—</td></tr>
+        <tr><td>투표명</td><td>[대구상원고등학교에서 「대상고등학교」로 교명 변경 추진에 대한 여론조사]</td></tr>
+        <tr><td>투표 시간</td><td id="certTime">—</td></tr>
+      </table>
+
+      <div class="cert-body-text">
+        위 사람은 <strong>2026년 06월 20일 00시 00분</strong>에 실시하는<br>
+        <strong>「대구상원고등학교에서 「대상고등학교」로<br>교명 변경 추진에 대한 여론조사」</strong><br>
+        전자투표에 참여하였음을 확인 합니다.
+      </div>
+
+      <div class="cert-footer-date" id="certDate">—</div>
+      <div class="cert-footer-row">
+        <div class="cert-issuer-name">재경 교명변경추진위원회</div>
+        <div class="cert-seal-circle">공동<br>위원장<br>직인</div>
+      </div>
+      <div style="font-size:0.72rem;color:var(--gray-mid);margin-top:8px;">공동위원장 하종화 · 최명주</div>
+    </div>
+    <div class="cert-actions">
+      <button class="btn btn-primary" onclick="printCert()">🖨️ 인쇄 / 저장</button>
+      <button class="btn btn-outline" onclick="closeCert()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── 상수 ──────────────────────────────────────────
+const STORAGE_KEY = 'dsw_vote_v3';
+const VOTE_START  = new Date('2026-06-20T00:00:00');
+const VOTE_END    = new Date('2026-06-30T24:00:00');
+
+// ── 상태 ──────────────────────────────────────────
+function getState() {
+  try { const r = JSON.parse(localStorage.getItem(STORAGE_KEY)); return r || defaultState(); }
+  catch { return defaultState(); }
+}
+function defaultState() { return { yes:0, no:0, voters:[], adminPw:'admin1234' }; }
+function saveState(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+
+// ── 전역 변수 ──────────────────────────────────────
+let selectedChoice = null;
+let selectedKisu   = null;
+let chart          = null;
+let countdownTimer = null;
+let adminVisible   = false;
+
+
+
+
+// ── 탭 전환 ───────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'result') renderResult(getState());
+}
+
+// ── 찬반 선택 ─────────────────────────────────────
+function selectVote(c) {
+  selectedChoice = c;
+  document.getElementById('optYes').className = 'vote-option'+(c==='yes'?' selected-yes':'');
+  document.getElementById('optNo' ).className = 'vote-option'+(c==='no' ?' selected-no' :'');
+  checkSubmitReady();
+}
+
+function checkSubmitReady() {
+  const name  = document.getElementById('voterName').value.trim();
+  const kisu  = document.getElementById('voterKisu').value.trim();
+  const phone = document.getElementById('voterPhone').value.trim();
+  const kisuNum = parseInt(kisu);
+  const valid = name && kisu && kisuNum >= 1 && kisuNum <= 999 && phone.length >= 10 && selectedChoice;
+  document.getElementById('submitBtn').disabled = !valid;
+}
+
+// ── 해시 (이름+기수 조합으로 중복 방지) ─────────────
+function hashStr(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) { h = ((h << 5) - h) + str.charCodeAt(i); h |= 0; }
+  return Math.abs(h).toString(36).toUpperCase();
+}
+
+// ── 투표 제출 ─────────────────────────────────────
+function submitVote() {
+  const name  = document.getElementById('voterName').value.trim();
+  const kisu  = parseInt(document.getElementById('voterKisu').value.trim());
+  const phone = document.getElementById('voterPhone').value.trim().replace(/\D/g,'');
+
+  if (!name)                    { alert('성명을 입력해주세요.'); return; }
+  if (!kisu || kisu < 1 || kisu > 999) { alert('기수를 1~999 사이로 입력해주세요.'); return; }
+  if (phone.length < 10)        { alert('올바른 휴대폰 번호를 입력해주세요.'); return; }
+  if (!selectedChoice)          { alert('찬성 또는 반대를 선택해주세요.'); return; }
+
+  const now = new Date();
+  if (now < VOTE_START || now > VOTE_END) { alert('투표 기간이 아닙니다.'); return; }
+
+  const s   = getState();
+  // 이름+기수+전화번호 조합으로 중복 방지
+  const vid = hashStr(name + '|' + kisu + '|' + phone);
+
+  if (s.voters.includes(vid)) {
+    alert('이미 투표에 참여하셨습니다.\n동일한 정보로는 1회만 참여 가능합니다.');
+    return;
+  }
+
+  s[selectedChoice]++;
+  s.voters.push(vid);
+  saveState(s);
+
+  renderResult(s);
+  showCert(name, kisu, now);
+
+  // 초기화
+  selectedChoice = null;
+  document.getElementById('optYes').className = 'vote-option';
+  document.getElementById('optNo' ).className = 'vote-option';
+  document.getElementById('voterName').value  = '';
+  document.getElementById('voterKisu').value  = '';
+  document.getElementById('voterPhone').value = '';
+  document.getElementById('submitBtn').disabled = true;
+}
+
+// ── 확인증 ────────────────────────────────────────
+function pad(n) { return String(n).padStart(2,'0'); }
+function fmtDt(d) {
+  return d.getFullYear()+'년 '+pad(d.getMonth()+1)+'월 '+pad(d.getDate())+'일 '+pad(d.getHours())+'시 '+pad(d.getMinutes())+'분';
+}
+function fmtDate(d) {
+  return d.getFullYear()+'년 '+pad(d.getMonth()+1)+'월 '+pad(d.getDate())+'일';
+}
+
+function showCert(name, kisu, dt) {
+  document.getElementById('certName').textContent = name;
+  document.getElementById('certKisu').textContent = kisu + '회';
+  document.getElementById('certTime').textContent = fmtDt(dt);
+  document.getElementById('certDate').textContent = fmtDate(dt);
+  document.getElementById('certOverlay').classList.add('show');
+}function closeCert() { document.getElementById('certOverlay').classList.remove('show'); }
+function printCert() { window.print(); }
+
+// ── 결과 렌더링 ────────────────────────────────────
+function renderResult(s) {
+  const total  = s.yes + s.no;
+  const yesPct = total ? Math.round(s.yes / total * 100) : 0;
+  const noPct  = total ? 100 - yesPct : 0;
+  document.getElementById('resYes').textContent    = s.yes;
+  document.getElementById('resNo').textContent     = s.no;
+  document.getElementById('resTotal').textContent  = total;
+  document.getElementById('displayTotal').textContent = total + '명';
+  document.getElementById('barYes').style.width    = yesPct + '%';
+  document.getElementById('barNo').style.width     = noPct  + '%';
+  document.getElementById('barYesPct').textContent = yesPct + '%';
+  document.getElementById('barNoPct').textContent  = noPct  + '%';
+  if (chart) { chart.data.datasets[0].data = [s.yes, s.no]; chart.update('active'); }
+}
+
+function initChart(s) {
+  const ctx = document.getElementById('resultChart').getContext('2d');
+  chart = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels:['찬성','반대'], datasets:[{ data:[s.yes,s.no], backgroundColor:['#2E7D52','#B33A3A'], borderWidth:3, borderColor:'#fff', hoverOffset:8 }] },
+    options: { responsive:true, maintainAspectRatio:true, cutout:'60%',
+      plugins: {
+        legend: { position:'bottom', labels:{ font:{family:'Noto Sans KR',size:13}, padding:20 } },
+        tooltip: { callbacks: { label: ctx => { const t=ctx.dataset.data.reduce((a,b)=>a+b,0); const p=t?Math.round(ctx.parsed/t*100):0; return ` ${ctx.label}: ${ctx.parsed}명 (${p}%)`; } } }
+      }
+    }
+  });
+}
+
+// ── 투표 상태 확인 ─────────────────────────────────
+function checkVoteStatus() {
+  const now   = new Date();
+  const badge = document.getElementById('statusBadge');
+  const vTab  = document.getElementById('tab-vote');
+  if (now < VOTE_START) {
+    badge.textContent='시작 전'; badge.style.background='#9A9080';
+    vTab.style.opacity='0.5'; vTab.style.pointerEvents='none';
+  } else if (now > VOTE_END) {
+    badge.textContent='마감'; badge.style.background='#B33A3A';
+    document.getElementById('closedBanner').style.display='flex';
+    document.getElementById('countdownWrap').style.display='none';
+    vTab.style.opacity='0.5'; vTab.style.pointerEvents='none';
+  } else {
+    badge.textContent='진행 중'; badge.style.background='#2E7D52';
+  }
+}
+
+// ── 카운트다운 ─────────────────────────────────────
+function startCountdown() {
+  if (countdownTimer) clearInterval(countdownTimer);
+  const wrap = document.getElementById('countdownWrap');
+  const val  = document.getElementById('countdownVal');
+  function tick() {
+    const diff = VOTE_END - new Date();
+    if (diff <= 0) { wrap.style.display='none'; checkVoteStatus(); clearInterval(countdownTimer); return; }
+    wrap.style.display = 'flex';
+    const d=Math.floor(diff/86400000), h=Math.floor((diff%86400000)/3600000), m=Math.floor((diff%3600000)/60000), sec=Math.floor((diff%60000)/1000);
+    val.textContent = (d>0?d+'일 ':'') + pad(h)+'시간 '+pad(m)+'분 '+pad(sec)+'초';
+  }
+  tick();
+  countdownTimer = setInterval(tick, 1000);
+}
+
+// ── 관리자 ─────────────────────────────────────────
+function toggleAdminPw() {
+  adminVisible = !adminVisible;
+  document.getElementById('adminPwCard').classList.toggle('visible', adminVisible);
+  if (!adminVisible) document.getElementById('adminPanel').classList.remove('visible');
+}
+function checkAdminPw() {
+  if (document.getElementById('adminPwInput').value === getState().adminPw) {
+    document.getElementById('adminPwCard').classList.remove('visible');
+    document.getElementById('adminPanel').classList.add('visible');
+  } else { alert('비밀번호가 올바르지 않습니다.'); }
+}
+function saveSettings() {
+  const s  = getState();
+  const np = document.getElementById('newPwInput').value;
+  if (np) s.adminPw = np;
+  saveState(s);
+  alert('저장되었습니다.');
+  document.getElementById('adminPanel').classList.remove('visible');
+}
+function resetVotes() {
+  if (!confirm('투표 결과를 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
+  const s = getState(); s.yes=0; s.no=0; s.voters=[];
+  saveState(s); renderResult(s);
+  alert('초기화되었습니다.');
+}
+
+// ── 입력 이벤트 ───────────────────────────────────
+document.getElementById('voterName').addEventListener('input',  checkSubmitReady);
+document.getElementById('voterKisu').addEventListener('input',  checkSubmitReady);
+document.getElementById('voterPhone').addEventListener('input', checkSubmitReady);
+
+// 전화번호: 숫자만 입력되도록
+document.getElementById('voterPhone').addEventListener('keypress', e => {
+  if (!/[0-9]/.test(e.key)) e.preventDefault();
+});
+
+// ── 초기 실행 ─────────────────────────────────────
+(function init() {
+  const s = getState();
+  renderResult(s);
+  initChart(s);
+  checkVoteStatus();
+  startCountdown();
+  setInterval(() => renderResult(getState()), 5000);
+})();
+</script>
+</body>
+</html>
